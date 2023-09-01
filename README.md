@@ -1,78 +1,30 @@
-# TXODDSTechtest
-Producer consumer - Raw data conversion
-"""
-importing libraries
-"""
-import queue
-import threading
-import requests
-import pdfplumber
-"""
-pdf opening 
-"""
-with pdfplumber.open("TXODDSPythonCodeTest_pdf") as pdf:
-    for page in pdf.pages:
-        for row in page.extract_tables():
-            for cell in row:
-                print(cell)
 
-"""
-create a queue
-"""
+  Problem Statement
 
-queue = queue.Queue()
+Design and implement a simple producer/consumer web link extractor that meets the following requirements:
 
+The producer receives a list of URLs and extracts the markup from each of the URLs.
+The markup is placed onto a queue.
+The consumer reads the queue until it is empty.
+The consumer parses the HTML and extracts a list of hyperlinks.
+The list of hyperlinks is output to a file or the command line.
+Requirements
 
-"""
-create a producer thread
-"""
+The producer and consumer must run concurrently.
+Error handling should ensure isolation. One bad fetch or parse should not affect the processing of others.
+Some unit tests should be written.
+The project should be pushed to a GitHub repository and the link should be provided.
+The following diagram shows the design of the producer/consumer web link extractor:
 
-class Producer(threading.Thread):
-
-    def __init__ (self):
-        super().__init__()
-
-    def run(self):
-        with pdfplumber.open ("TXODDSPythonCodeTest_pdf") as pdf:
-            for page in pdf.pages:
-                for url in page.extract_links():
-                    queue.put(url)
-
-
-"""
-create a consumer thread
-"""
-
-class Consumer(threading.Thread):
-
-    def __init__ (self):
-        super().__init__()
-    
-    def run(self):
-        while True:
-            url = queue.get()
-            response = requests.get(url)
-            html = response.content
-            links = []
-            for link in html.findall("a"):
-                links.append(link["href"])
-            print(f"URL: {url} - Links: {links}")
-
-"""
-create a main thread
-"""
-
-def main():
-   
-    
-    producer = Producer()
-    consumer = Consumer()
-
-    producer.start()
-    consumer.start()
-
-    producer.join()
-    consumer.join()
-
-main()
+Producer
+   |
+   |-- Get URLs
+   |-- Extract Markup
+   |-- Put Markup on Queue
+Consumer
+   |
+   |-- Get Markup from Queue
+   |-- Parse HTML
+   |-- Extract Hyperlinks
+   |-- Output Hyperlinks
 
