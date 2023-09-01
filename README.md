@@ -18,15 +18,13 @@ The project should be pushed to a GitHub repository and the link should be provi
 The following diagram shows the design of the producer/consumer web link extractor:
 
 Producer
-   |
-   |-- Get URLs
-   |-- Extract Markup
-   |-- Put Markup on Queue
+   1.Get URLs
+   2.Extract Markup
+   3.Put Markup on Queue
 Consumer
-   |
-   |-- Get Markup from Queue
-   |-- Parse HTML
-   |-- Extract Hyperlinks
-   |-- Output Hyperlinks
+   1.Get Markup from Queue
+   2.Parse HTML
+   3.Extract Hyperlinks
+   4.Output Hyperlinks
 
 As the final output, it was regarded as that there is no links found in the give data file.
