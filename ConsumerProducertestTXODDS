@@ -1,0 +1,71 @@
+import re
+import concurrent.futures
+import requests
+from bs4 import BeautifulSoup
+from queue import Queue
+import fitz  # PyMuPDF
+
+# Define the path to the PDF file containing URLs
+pdf_path = r'C:\Users\Trigkey\OneDrive\Desktop\PROJECTS\Project 1\TXODDSPythonCodeTest_pdf.pdf'
+
+# Function to fetch HTML content from a URL
+def fetch_url(url):
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        return response.text
+    except Exception as e:
+        return f"Error fetching {url}: {str(e)}"
+
+# Function to extract hyperlinks from HTML content
+def extract_links(html):
+    soup = BeautifulSoup(html, 'html.parser')
+    links = [a['href'] for a in soup.find_all('a', href=True)]
+    return links
+
+# Producer function to fetch HTML content and put it in the queue
+def producer(queue, urls):
+    for url in urls:
+        html = fetch_url(url)
+        queue.put(html)
+
+# Consumer function to extract and print links from the queue
+def consumer(queue):
+    extracted_links = []  # Initialize an empty list
+    while not queue.empty():
+        html = queue.get()
+        links = extract_links(html)
+        extracted_links.extend(links)  # Extend the list of extracted links
+    if extracted_links:  # Check if the list is not empty
+        for link in extracted_links:
+            print(link, flush=True)
+    else:
+        print("No links found in the PDF.", flush=True)
+
+
+
+def extract_urls_from_pdf(pdf_path):
+    doc = fitz.open(pdf_path)
+    pdf_text = ''
+    for page in doc:
+        pdf_text += page.get_text()
+
+    # Use regular expressions to extract URLs from the PDF text
+    urls = re.findall(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', pdf_text)
+    return urls
+
+if __name__ == '__main__':
+    # Create a queue
+    link_queue = Queue()
+
+    # Read URLs from the PDF file using the new method
+    urls = extract_urls_from_pdf(pdf_path)
+
+    # Start producer and consumer concurrently
+    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+        producer_future = executor.submit(producer, link_queue, urls)
+        consumer_future = executor.submit(consumer, link_queue)
+
+    # Wait for both producer and consumer to finish
+    producer_future.result()
+    consumer_future.result()
