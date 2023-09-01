@@ -10,6 +10,7 @@ The consumer parses the HTML and extracts a list of hyperlinks.
 The list of hyperlinks is output to a file or the command line.
 Requirements
 
+As the give code challenge is in a format of mat, by suing physical software, the text file converted into UFT-8 and saved as a pdf.
 The producer and consumer must run concurrently.
 Error handling should ensure isolation. One bad fetch or parse should not affect the processing of others.
 Some unit tests should be written.
@@ -28,3 +29,4 @@ Consumer
    |-- Extract Hyperlinks
    |-- Output Hyperlinks
 
+As the final output, it was regarded as that there is no links found in the give data file.
